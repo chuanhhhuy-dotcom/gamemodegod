@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎮 MENU HACK MÔ PHỎNG</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Segoe UI',Tahoma,sans-serif;
+  background:#0a0a0a;
+  color:#0f0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+#bg-canvas {
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  z-index:0;
+}
+#menu {
+  position:relative;
+  z-index:10;
+  width:400px;
+  background:rgba(10,10,10,0.95);
+  border:2px solid #0f0;
+  border-radius:15px;
+  box-shadow:0 0 30px #0f0, inset 0 0 20px rgba(0,255,0,0.1);
+  overflow:hidden;
+}
+#header {
+  background:linear-gradient(90deg,#000,#0f0,#000);
+  color:#000;
+  padding:15px;
+  text-align:center;
+  font-weight:bold;
+  font-size:1.2rem;
+  letter-spacing:3px;
+  animation:headerGlow 2s infinite;
+}
+@keyframes headerGlow {
+  0%,100% { box-shadow:0 0 10px #0f0; }
+  50% { box-shadow:0 0 30px #0f0, 0 0 50px #0f0; }
+}
+#status {
+  display:flex;
+  justify-content:space-between;
+  padding:10px 15px;
+  border-bottom:1px solid #0f0;
+  font-size:0.85rem;
+  color:#0f0;
+}
+.status-dot {
+  display:inline-block;
+  width:8px; height:8px;
+  background:#0f0;
+  border-radius:50%;
+  margin-right:5px;
+  animation:blink 1s infinite;
+}
+@keyframes blink {
+  0%,100% { opacity:1; }
+  50% { opacity:0.3; }
+}
+#features {
+  padding:10px;
+}
+.feature {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 15px;
+  margin:5px 0;
+  background:rgba(0,255,0,0.05);
+  border:1px solid rgba(0,255,0,0.3);
+  border-radius:8px;
+  cursor:pointer;
+  transition:all 0.2s;
+  font-size:0.95rem;
+}
+.feature:hover {
+  background:rgba(0,255,0,0.15);
+  border-color:#0f0;
+  transform:translateX(5px);
+}
+.feature.active {
+  background:rgba(0,255,0,0.25);
+  border-color:#0f0;
+  box-shadow:0 0 15px rgba(0,255,0,0.4);
+}
+.feature.active .toggle {
+  background:#0f0;
+  color:#000;
+  content:'ON';
+}
+.toggle {
+  padding:4px 12px;
+  background:#333;
+  color:#888;
+  border-radius:5px;
+  font-size:0.75rem;
+  font-weight:bold;
+  transition:all 0.3s;
+}
+.toggle.on {
+  background:#0f0;
+  color:#000;
+  box-shadow:0 0 10px #0f0;
+}
+#footer {
+  padding:15px;
+  border-top:1px solid #0f0;
+  text-align:center;
+  font-size:0.8rem;
+  color:#0f0;
+  opacity:0.7;
+}
+#log {
+  padding:10px 15px;
+  background:#000;
+  border-top:1px solid #0f0;
+  font-family:'Consolas',monospace;
+  font-size:0.75rem;
+  color:#0f0;
+  height:80px;
+  overflow-y:auto;
+}
+#log::-webkit-scrollbar { width:5px; }
+#log::-webkit-scrollbar-thumb { background:#0f0; border-radius:3px; }
+.log-line { opacity:0.8; }
+.log-line::before { content:'> '; color:#0f0; }
+#cursor {
+  position:fixed;
+  pointer-events:none;
+  width:20px; height:20px;
+  border:2px solid #0f0;
+  border-radius:50%;
+  z-index:9999;
+  transition:transform 0.1s;
+  mix-blend-mode:difference;
+}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div id="cursor"></div>
+
+<div id="menu">
+  <div id="header">⚡ ANHHUY CHEAT MENU ⚡</div>
+  <div id="status">
+    <span><span class="status-dot"></span>CONNECTED</span>
+    <span>PID: <span id="pid">--</span></span>
+    <span>FPS: <span id="fps">60</span></span>
+  </div>
+  <div id="features">
+    <div class="feature" data-feature="aimbot">
+      <span>🎯 AIMBOT</span>
+      <span class="toggle">OFF</span>
+    </div>
+    <div class="feature" data-feature="esp">
+      <span>👁️ ESP (XUYÊN TƯỜNG)</span>
+      <span class="toggle">OFF</span>
+    </div>
+    <div class="feature" data-feature="wallhack">
+      <span>🧱 WALLHACK</span>
+      <span class="toggle">OFF</span>
+    </div>
+    <div class="feature" data-feature="speed">
+      <span>⚡ SPEED HACK</span>
+      <span class="toggle">OFF</span>
+    </div>
+    <div class="feature" data-feature="fly">
+      <span>🕊️ FLY HACK</span>
+      <span class="toggle">OFF</span>
+    </div>
+    <div class="feature" data-feature="godmode">
+      <span>🛡️ GOD MODE</span>
+      <span class="toggle">OFF</span>
+    </div>
+    <div class="feature" data-feature="ammo">
+      <span>🔫 VÔ HẠN ĐẠN</span>
+      <span class="toggle">OFF</span>
+    </div>
+    <div class="feature" data-feature="antiban">
+      <span>🔒 ANTI-BAN</span>
+      <span class="toggle on">ON</span>
+    </div>
+  </div>
+  <div id="log">
+    <div class="log-line">Khởi tạo menu...</div>
+  </div>
+  <div id="footer">Nhấn phím tắt hoặc click để bật/tắt</div>
+</div>
+
+<script>
+// ====== CURSOR ======
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = (e.clientX - 10) + 'px';
+  cursor.style.top = (e.clientY - 10) + 'px';
+});
+
+// ====== BACKGROUND CANVAS (hiệu ứng matrix) ======
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+const chars = '01アイウエオカキクケコサシスセソABCDEF';
+const fontSize = 16;
+const columns = canvas.width / fontSize;
+const drops = Array(Math.floor(columns)).fill(1);
+
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(0,0,0,0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#0f0';
+  ctx.font = fontSize + 'px monospace';
+  for (let i = 0; i < drops.length; i++) {
+    const text = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix, 50);
+
+// ====== LOG ======
+const logEl = document.getElementById('log');
+function addLog(text) {
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+  if (logEl.children.length > 20) {
+    logEl.removeChild(logEl.firstChild);
+  }
+}
+addLog('Đã kết nối vào tiến trình game.');
+addLog('Anti-Ban: ACTIVE');
+addLog('Chờ lệnh từ người dùng...');
+
+// ====== TOGGLE FEATURES ======
+let activeFeatures = { antiban: true };
+
+document.querySelectorAll('.feature').forEach(el => {
+  el.addEventListener('click', () => {
+    const feature = el.dataset.feature;
+    const toggle = el.querySelector('.toggle');
+    const isOn = activeFeatures[feature];
+    activeFeatures[feature] = !isOn;
+    toggle.textContent = !isOn ? 'ON' : 'OFF';
+    toggle.classList.toggle('on', !isOn);
+    el.classList.toggle('active', !isOn);
+    addLog(`${feature.toUpperCase()}: ${!isOn ? 'BẬT' : 'TẮT'}`);
+    if (!isOn) {
+      // Hiệu ứng glitch khi bật
+      document.body.style.filter = 'invert(1)';
+      setTimeout(() => document.body.style.filter = 'none', 100);
+    }
+  });
+});
+
+// ====== PHÍM TẮT ======
+const hotkeys = {
+  '1': 'aimbot',
+  '2': 'esp',
+  '3': 'wallhack',
+  '4': 'speed',
+  '5': 'fly',
+  '6': 'godmode',
+  '7': 'ammo',
+  '8': 'antiban'
+};
+document.addEventListener('keydown', e => {
+  if (hotkeys[e.key]) {
+    const feature = hotkeys[e.key];
+    document.querySelector(`[data-feature="${feature}"]`).click();
+  }
+});
+
+// ====== PID NGẪU NHIÊN ======
+document.getElementById('pid').textContent = Math.floor(Math.random() * 9000) + 1000;
+
+// ====== FPS COUNTER ======
+let lastTime = performance.now();
+let frames = 0;
+function updateFps() {
+  frames++;
+  const now = performance.now();
+  if (now - lastTime >= 1000) {
+    document.getElementById('fps').textContent = frames;
+    frames = 0;
+    lastTime = now;
+  }
+  requestAnimationFrame(updateFps);
+}
+updateFps();
+
+// ====== RESIZE ======
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+// ====== HIỆU ỨNG GLITCH NGẪU NHIÊN ======
+setInterval(() => {
+  if (Math.random() > 0.9) {
+    document.getElementById('header').style.transform = `translate(${Math.random()*4-2}px, ${Math.random()*4-2}px)`;
+    setTimeout(() => document.getElementById('header').style.transform = 'none', 100);
+  }
+}, 500);
+</script>
+</body>
+</html>

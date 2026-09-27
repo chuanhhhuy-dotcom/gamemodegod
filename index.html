@@ -3,198 +3,335 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎮 MENU HACK MÔ PHỎNG</title>
+<title>FACE SCAN COMPLETE</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body {
-  font-family:'Segoe UI',Tahoma,sans-serif;
-  background:#0a0a0a;
+html, body {
+  width:100%; height:100%;
+  background:#000;
   color:#0f0;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  font-family:'Consolas',monospace;
   overflow:hidden;
+  cursor:none;
 }
-#bg-canvas {
+#cam-container {
   position:fixed;
   top:0; left:0;
   width:100%; height:100%;
-  z-index:0;
-}
-#menu {
-  position:relative;
-  z-index:10;
-  width:400px;
-  background:rgba(10,10,10,0.95);
-  border:2px solid #0f0;
-  border-radius:15px;
-  box-shadow:0 0 30px #0f0, inset 0 0 20px rgba(0,255,0,0.1);
-  overflow:hidden;
-}
-#header {
-  background:linear-gradient(90deg,#000,#0f0,#000);
-  color:#000;
-  padding:15px;
-  text-align:center;
-  font-weight:bold;
-  font-size:1.2rem;
-  letter-spacing:3px;
-  animation:headerGlow 2s infinite;
-}
-@keyframes headerGlow {
-  0%,100% { box-shadow:0 0 10px #0f0; }
-  50% { box-shadow:0 0 30px #0f0, 0 0 50px #0f0; }
-}
-#status {
-  display:flex;
-  justify-content:space-between;
-  padding:10px 15px;
-  border-bottom:1px solid #0f0;
-  font-size:0.85rem;
-  color:#0f0;
-}
-.status-dot {
-  display:inline-block;
-  width:8px; height:8px;
-  background:#0f0;
-  border-radius:50%;
-  margin-right:5px;
-  animation:blink 1s infinite;
-}
-@keyframes blink {
-  0%,100% { opacity:1; }
-  50% { opacity:0.3; }
-}
-#features {
-  padding:10px;
-}
-.feature {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 15px;
-  margin:5px 0;
-  background:rgba(0,255,0,0.05);
-  border:1px solid rgba(0,255,0,0.3);
-  border-radius:8px;
-  cursor:pointer;
-  transition:all 0.2s;
-  font-size:0.95rem;
-}
-.feature:hover {
-  background:rgba(0,255,0,0.15);
-  border-color:#0f0;
-  transform:translateX(5px);
-}
-.feature.active {
-  background:rgba(0,255,0,0.25);
-  border-color:#0f0;
-  box-shadow:0 0 15px rgba(0,255,0,0.4);
-}
-.feature.active .toggle {
-  background:#0f0;
-  color:#000;
-  content:'ON';
-}
-.toggle {
-  padding:4px 12px;
-  background:#333;
-  color:#888;
-  border-radius:5px;
-  font-size:0.75rem;
-  font-weight:bold;
-  transition:all 0.3s;
-}
-.toggle.on {
-  background:#0f0;
-  color:#000;
-  box-shadow:0 0 10px #0f0;
-}
-#footer {
-  padding:15px;
-  border-top:1px solid #0f0;
-  text-align:center;
-  font-size:0.8rem;
-  color:#0f0;
-  opacity:0.7;
-}
-#log {
-  padding:10px 15px;
   background:#000;
-  border-top:1px solid #0f0;
-  font-family:'Consolas',monospace;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+#video {
+  width:100%; height:100%;
+  object-fit:cover;
+  transform:scaleX(-1);
+  filter:contrast(1.3) saturate(0.8) brightness(0.9) hue-rotate(90deg);
+}
+#overlay {
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  pointer-events:none;
+  z-index:10;
+}
+#scanlines {
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:repeating-linear-gradient(
+    0deg,
+    rgba(0,255,0,0.08) 0px,
+    rgba(0,255,0,0.08) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+#noise {
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+  opacity:0.06;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:noiseMove 0.2s infinite;
+}
+@keyframes noiseMove {
+  0% { transform:translate(0,0); }
+  50% { transform:translate(-5px,5px); }
+  100% { transform:translate(0,0); }
+}
+#vignette {
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(0,0,0,0.8) 100%);
+}
+#scan-bar {
+  position:absolute;
+  top:0; left:0;
+  width:100%;
+  height:3px;
+  background:linear-gradient(90deg, transparent, #0ff, #0ff, transparent);
+  box-shadow:0 0 20px #0ff, 0 0 40px #0ff;
+  animation:scanMove 2s linear infinite;
+}
+@keyframes scanMove {
+  0% { top:0; }
+  100% { top:100%; }
+}
+#face-frame {
+  position:absolute;
+  border:2px solid #0f0;
+  box-shadow:0 0 20px #0f0, inset 0 0 20px rgba(0,255,0,0.2);
+  transition:all 0.3s ease;
+  display:none;
+}
+#face-frame::before,
+#face-frame::after {
+  content:'';
+  position:absolute;
+  width:20px; height:20px;
+  border:3px solid #0ff;
+}
+#face-frame::before {
+  top:-3px; left:-3px;
+  border-right:none;
+  border-bottom:none;
+}
+#face-frame::after {
+  bottom:-3px; right:-3px;
+  border-left:none;
+  border-top:none;
+}
+#face-label {
+  position:absolute;
+  top:-28px; left:0;
+  background:#0f0;
+  color:#000;
+  padding:3px 10px;
   font-size:0.75rem;
-  color:#0f0;
-  height:80px;
+  font-weight:bold;
+  letter-spacing:1px;
+}
+#info-panel {
+  position:absolute;
+  top:80px; right:20px;
+  width:280px;
+  background:rgba(0,20,0,0.85);
+  border:1px solid #0f0;
+  border-radius:8px;
+  padding:15px;
+  font-size:0.75rem;
+  line-height:1.7;
+  box-shadow:0 0 20px rgba(0,255,0,0.3);
+  opacity:0;
+  transform:translateX(100%);
+  transition:all 0.8s ease;
+}
+#info-panel.show {
+  opacity:1;
+  transform:translateX(0);
+}
+#info-panel h3 {
+  color:#0ff;
+  font-size:0.85rem;
+  margin-bottom:10px;
+  border-bottom:1px solid #0f0;
+  padding-bottom:5px;
+  text-shadow:0 0 5px #0ff;
+}
+.info-row {
+  display:flex;
+  justify-content:space-between;
+  margin:4px 0;
+}
+.info-row .label { color:#0a0; }
+.info-row .value { color:#0f0; font-weight:bold; }
+.info-row .value.red { color:#f00; text-shadow:0 0 5px #f00; }
+.info-row .value.yellow { color:#ff0; text-shadow:0 0 5px #ff0; }
+#result-screen {
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.97);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  z-index:100;
+  padding:20px;
+  text-align:center;
   overflow-y:auto;
 }
-#log::-webkit-scrollbar { width:5px; }
-#log::-webkit-scrollbar-thumb { background:#0f0; border-radius:3px; }
-.log-line { opacity:0.8; }
-.log-line::before { content:'> '; color:#0f0; }
+#result-screen h1 {
+  font-size:3rem;
+  color:#f00;
+  text-shadow:0 0 30px #f00, 0 0 60px #f00;
+  margin-bottom:10px;
+  animation:blinkRed 1s infinite;
+}
+@keyframes blinkRed {
+  0%,100% { opacity:1; }
+  50% { opacity:0.5; }
+}
+#result-screen h2 {
+  font-size:1.3rem;
+  color:#0ff;
+  margin-bottom:25px;
+  text-shadow:0 0 10px #0ff;
+}
+.result-box {
+  background:rgba(0,20,0,0.9);
+  border:2px solid #0f0;
+  border-radius:10px;
+  padding:20px 30px;
+  margin:10px 0;
+  min-width:340px;
+  max-width:90%;
+  box-shadow:0 0 30px rgba(0,255,0,0.4);
+}
+.result-box .row {
+  display:flex;
+  justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px dashed #0a0;
+  font-size:0.9rem;
+}
+.result-box .row:last-child { border-bottom:none; }
+.result-box .row .lbl { color:#0a0; }
+.result-box .row .val { color:#0f0; font-weight:bold; text-shadow:0 0 5px #0f0; }
+.result-box .row .val.danger { color:#f00; text-shadow:0 0 8px #f00; }
+.result-box .row .val.yellow { color:#ff0; text-shadow:0 0 8px #ff0; }
+#restart-btn {
+  margin-top:25px;
+  padding:12px 35px;
+  font-size:1rem;
+  background:#0f0;
+  color:#000;
+  border:none;
+  border-radius:8px;
+  font-family:'Consolas',monospace;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 0 20px #0f0;
+}
+#restart-btn:hover { background:#0ff; }
+#status-top {
+  position:absolute;
+  top:20px; left:20px;
+  color:#0f0;
+  font-size:0.9rem;
+  text-shadow:0 0 5px #0f0;
+  z-index:20;
+}
+#status-top .rec {
+  color:#f00;
+  animation:blinkRed 1s infinite;
+}
+#progress-scan {
+  position:absolute;
+  bottom:60px; left:50%;
+  transform:translateX(-50%);
+  width:60%;
+  max-width:400px;
+  text-align:center;
+  z-index:20;
+}
+#progress-scan .text {
+  color:#0ff;
+  font-size:0.9rem;
+  margin-bottom:8px;
+  text-shadow:0 0 5px #0ff;
+}
+#progress-scan .bar-bg {
+  width:100%;
+  height:8px;
+  background:#111;
+  border:1px solid #0ff;
+  border-radius:4px;
+  overflow:hidden;
+}
+#progress-scan .bar-fill {
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#0f0,#0ff);
+  box-shadow:0 0 10px #0ff;
+  transition:width 0.2s;
+}
 #cursor {
   position:fixed;
-  pointer-events:none;
   width:20px; height:20px;
   border:2px solid #0f0;
   border-radius:50%;
+  pointer-events:none;
   z-index:9999;
-  transition:transform 0.1s;
-  mix-blend-mode:difference;
+  box-shadow:0 0 10px #0f0;
 }
 </style>
 </head>
 <body>
-<canvas id="bg-canvas"></canvas>
-<div id="cursor"></div>
 
-<div id="menu">
-  <div id="header">⚡ ANHHUY CHEAT MENU ⚡</div>
-  <div id="status">
-    <span><span class="status-dot"></span>CONNECTED</span>
-    <span>PID: <span id="pid">--</span></span>
-    <span>FPS: <span id="fps">60</span></span>
-  </div>
-  <div id="features">
-    <div class="feature" data-feature="aimbot">
-      <span>🎯 AIMBOT</span>
-      <span class="toggle">OFF</span>
-    </div>
-    <div class="feature" data-feature="esp">
-      <span>👁️ ESP (XUYÊN TƯỜNG)</span>
-      <span class="toggle">OFF</span>
-    </div>
-    <div class="feature" data-feature="wallhack">
-      <span>🧱 WALLHACK</span>
-      <span class="toggle">OFF</span>
-    </div>
-    <div class="feature" data-feature="speed">
-      <span>⚡ SPEED HACK</span>
-      <span class="toggle">OFF</span>
-    </div>
-    <div class="feature" data-feature="fly">
-      <span>🕊️ FLY HACK</span>
-      <span class="toggle">OFF</span>
-    </div>
-    <div class="feature" data-feature="godmode">
-      <span>🛡️ GOD MODE</span>
-      <span class="toggle">OFF</span>
-    </div>
-    <div class="feature" data-feature="ammo">
-      <span>🔫 VÔ HẠN ĐẠN</span>
-      <span class="toggle">OFF</span>
-    </div>
-    <div class="feature" data-feature="antiban">
-      <span>🔒 ANTI-BAN</span>
-      <span class="toggle on">ON</span>
-    </div>
-  </div>
-  <div id="log">
-    <div class="log-line">Khởi tạo menu...</div>
-  </div>
-  <div id="footer">Nhấn phím tắt hoặc click để bật/tắt</div>
+<div id="cam-container">
+  <video id="video" autoplay playsinline muted></video>
 </div>
+
+<div id="overlay">
+  <div id="scanlines"></div>
+  <div id="noise"></div>
+  <div id="vignette"></div>
+  <div id="scan-bar"></div>
+
+  <div id="face-frame">
+    <div id="face-label">FACE DETECTED</div>
+  </div>
+
+  <div id="status-top">
+    <span class="rec">● REC</span> | CAM-01 | SECURE
+  </div>
+
+  <div id="info-panel">
+    <h3>⚡ FACE SCAN</h3>
+    <div class="info-row"><span class="label">Name:</span><span class="value" id="i-name">--</span></div>
+    <div class="info-row"><span class="label">Age:</span><span class="value" id="i-age">--</span></div>
+    <div class="info-row"><span class="label">Gender:</span><span class="value" id="i-gender">--</span></div>
+    <div class="info-row"><span class="label">IP:</span><span class="value yellow" id="i-ip">--</span></div>
+    <div class="info-row"><span class="label">Location:</span><span class="value" id="i-loc">--</span></div>
+    <div class="info-row"><span class="label">School:</span><span class="value" id="i-school">--</span></div>
+    <div class="info-row"><span class="label">Class:</span><span class="value" id="i-class">--</span></div>
+    <div class="info-row"><span class="label">Device:</span><span class="value" id="i-device">--</span></div>
+    <div class="info-row"><span class="label">OS:</span><span class="value" id="i-os">--</span></div>
+    <div class="info-row"><span class="label">Status:</span><span class="value red" id="i-status">SCANNING</span></div>
+  </div>
+
+  <div id="progress-scan">
+    <div class="text" id="progress-text">Đang quét khuôn mặt...</div>
+    <div class="bar-bg"><div class="bar-fill" id="progress-fill"></div></div>
+  </div>
+</div>
+
+<div id="result-screen">
+  <h1 id="result-title">⚠️ FACE SCANNED ⚠️</h1>
+  <h2>NHẬN DIỆN KHUÔN MẶT THÀNH CÔNG</h2>
+
+  <div class="result-box">
+    <div class="row"><span class="lbl">Họ tên:</span><span class="val" id="r-name">--</span></div>
+    <div class="row"><span class="lbl">Tuổi:</span><span class="val" id="r-age">--</span></div>
+    <div class="row"><span class="lbl">Giới tính:</span><span class="val" id="r-gender">--</span></div>
+    <div class="row"><span class="lbl">Quốc gia:</span><span class="val" id="r-country">--</span></div>
+    <div class="row"><span class="lbl">Thành phố:</span><span class="val" id="r-city">--</span></div>
+    <div class="row"><span class="lbl">Địa chỉ IP:</span><span class="val yellow" id="r-ip">--</span></div>
+    <div class="row"><span class="lbl">Trường học:</span><span class="val" id="r-school">--</span></div>
+    <div class="row"><span class="lbl">Lớp:</span><span class="val" id="r-class">--</span></div>
+    <div class="row"><span class="lbl">Thiết bị:</span><span class="val" id="r-device">--</span></div>
+    <div class="row"><span class="lbl">Hệ điều hành:</span><span class="val" id="r-os">--</span></div>
+    <div class="row"><span class="lbl">Mã định danh:</span><span class="val danger" id="r-id">--</span></div>
+  </div>
+
+  <button id="restart-btn" onclick="restart()">🔄 CHẠY LẠI</button>
+</div>
+
+<div id="cursor"></div>
 
 <script>
 // ====== CURSOR ======
@@ -204,118 +341,150 @@ document.addEventListener('mousemove', e => {
   cursor.style.top = (e.clientY - 10) + 'px';
 });
 
-// ====== BACKGROUND CANVAS (hiệu ứng matrix) ======
-const canvas = document.getElementById('bg-canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-const chars = '01アイウエオカキクケコサシスセソABCDEF';
-const fontSize = 16;
-const columns = canvas.width / fontSize;
-const drops = Array(Math.floor(columns)).fill(1);
-
-function drawMatrix() {
-  ctx.fillStyle = 'rgba(0,0,0,0.05)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#0f0';
-  ctx.font = fontSize + 'px monospace';
-  for (let i = 0; i < drops.length; i++) {
-    const text = chars[Math.floor(Math.random() * chars.length)];
-    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-      drops[i] = 0;
-    }
-    drops[i]++;
-  }
+// ====== CAMERA ======
+const video = document.getElementById('video');
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: 1280, height: 720, facingMode: 'user' },
+      audio: false
+    });
+    video.srcObject = stream;
+    video.play();
+  } catch (err) {}
 }
-setInterval(drawMatrix, 50);
+startCamera();
 
-// ====== LOG ======
-const logEl = document.getElementById('log');
-function addLog(text) {
-  const line = document.createElement('div');
-  line.className = 'log-line';
-  line.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
-  logEl.appendChild(line);
-  logEl.scrollTop = logEl.scrollHeight;
-  if (logEl.children.length > 20) {
-    logEl.removeChild(logEl.firstChild);
-  }
+// ====== THÔNG TIN ======
+function getOS() {
+  const ua = navigator.userAgent;
+  if (ua.indexOf('Windows') > -1) return 'Windows 10/11';
+  if (ua.indexOf('Mac') > -1) return 'macOS';
+  if (ua.indexOf('Linux') > -1) return 'Linux';
+  if (ua.indexOf('Android') > -1) return 'Android';
+  if (ua.indexOf('iPhone') > -1 || ua.indexOf('iPad') > -1) return 'iOS';
+  return 'Unknown OS';
 }
-addLog('Đã kết nối vào tiến trình game.');
-addLog('Anti-Ban: ACTIVE');
-addLog('Chờ lệnh từ người dùng...');
 
-// ====== TOGGLE FEATURES ======
-let activeFeatures = { antiban: true };
-
-document.querySelectorAll('.feature').forEach(el => {
-  el.addEventListener('click', () => {
-    const feature = el.dataset.feature;
-    const toggle = el.querySelector('.toggle');
-    const isOn = activeFeatures[feature];
-    activeFeatures[feature] = !isOn;
-    toggle.textContent = !isOn ? 'ON' : 'OFF';
-    toggle.classList.toggle('on', !isOn);
-    el.classList.toggle('active', !isOn);
-    addLog(`${feature.toUpperCase()}: ${!isOn ? 'BẬT' : 'TẮT'}`);
-    if (!isOn) {
-      // Hiệu ứng glitch khi bật
-      document.body.style.filter = 'invert(1)';
-      setTimeout(() => document.body.style.filter = 'none', 100);
-    }
-  });
-});
-
-// ====== PHÍM TẮT ======
-const hotkeys = {
-  '1': 'aimbot',
-  '2': 'esp',
-  '3': 'wallhack',
-  '4': 'speed',
-  '5': 'fly',
-  '6': 'godmode',
-  '7': 'ammo',
-  '8': 'antiban'
-};
-document.addEventListener('keydown', e => {
-  if (hotkeys[e.key]) {
-    const feature = hotkeys[e.key];
-    document.querySelector(`[data-feature="${feature}"]`).click();
-  }
-});
-
-// ====== PID NGẪU NHIÊN ======
-document.getElementById('pid').textContent = Math.floor(Math.random() * 9000) + 1000;
-
-// ====== FPS COUNTER ======
-let lastTime = performance.now();
-let frames = 0;
-function updateFps() {
-  frames++;
-  const now = performance.now();
-  if (now - lastTime >= 1000) {
-    document.getElementById('fps').textContent = frames;
-    frames = 0;
-    lastTime = now;
-  }
-  requestAnimationFrame(updateFps);
+function getDevice() {
+  const ua = navigator.userAgent;
+  if (/Mobile|Android|iPhone|iPad/i.test(ua)) return 'Mobile Device';
+  return 'Desktop / Laptop';
 }
-updateFps();
 
-// ====== RESIZE ======
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-});
+function fakeIP() {
+  return `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+}
 
-// ====== HIỆU ỨNG GLITCH NGẪU NHIÊN ======
-setInterval(() => {
-  if (Math.random() > 0.9) {
-    document.getElementById('header').style.transform = `translate(${Math.random()*4-2}px, ${Math.random()*4-2}px)`;
-    setTimeout(() => document.getElementById('header').style.transform = 'none', 100);
+function fakeID() {
+  return 'ID-' + Math.random().toString(36).substring(2, 12).toUpperCase();
+}
+
+// THÔNG TIN CỐ ĐỊNH
+const name = 'Duy An';
+const age = 13;
+const gender = 'Nam';
+const country = 'Việt Nam';
+const city = 'Hà Nội';
+const school = 'Trường THCS Từ Liêm 2';
+const className = '7A5';
+const ip = fakeIP();
+const device = getDevice();
+const os = getOS();
+const id = fakeID();
+
+// ====== KHUNG QUÉT ======
+const faceFrame = document.getElementById('face-frame');
+let faceX = 0, faceY = 0, faceW = 250, faceH = 300;
+let targetX = 0, targetY = 0;
+let moveTimer = 0;
+
+function updateFaceFrame() {
+  moveTimer++;
+  if (moveTimer > 40) {
+    moveTimer = 0;
+    const margin = 80;
+    targetX = margin + Math.random() * (window.innerWidth - faceW - margin*2);
+    targetY = margin + Math.random() * (window.innerHeight - faceH - margin*2);
+    faceW = 200 + Math.random() * 120;
+    faceH = faceW * 1.3;
   }
-}, 500);
+  faceX += (targetX - faceX) * 0.08;
+  faceY += (targetY - faceY) * 0.08;
+  faceFrame.style.left = faceX + 'px';
+  faceFrame.style.top = faceY + 'px';
+  faceFrame.style.width = faceW + 'px';
+  faceFrame.style.height = faceH + 'px';
+  requestAnimationFrame(updateFaceFrame);
+}
+faceFrame.style.display = 'block';
+updateFaceFrame();
+
+// ====== QUY TRÌNH QUÉT ======
+const panel = document.getElementById('info-panel');
+const progressFill = document.getElementById('progress-fill');
+const progressText = document.getElementById('progress-text');
+
+let progress = 0;
+const interval = setInterval(() => {
+  progress += Math.random() * 5 + 2;
+  if (progress >= 25 && !panel.classList.contains('show')) {
+    panel.classList.add('show');
+    document.getElementById('i-name').textContent = name;
+    document.getElementById('i-age').textContent = age;
+    document.getElementById('i-gender').textContent = gender;
+  }
+  if (progress >= 45) {
+    document.getElementById('i-ip').textContent = ip;
+    document.getElementById('i-loc').textContent = city + ', ' + country;
+  }
+  if (progress >= 65) {
+    document.getElementById('i-school').textContent = school;
+    document.getElementById('i-class').textContent = className;
+  }
+  if (progress >= 80) {
+    document.getElementById('i-device').textContent = device;
+    document.getElementById('i-os').textContent = os;
+  }
+  if (progress >= 95) {
+    document.getElementById('i-status').textContent = 'COMPLETE';
+    progressText.textContent = 'Hoàn tất quét!';
+  }
+  if (progress >= 100) {
+    progress = 100;
+    clearInterval(interval);
+    setTimeout(showResult, 800);
+  }
+  progressFill.style.width = progress + '%';
+}, 150);
+
+// ====== HIỆN KẾT QUẢ ======
+function showResult() {
+  document.getElementById('r-name').textContent = name;
+  document.getElementById('r-age').textContent = age;
+  document.getElementById('r-gender').textContent = gender;
+  document.getElementById('r-country').textContent = country;
+  document.getElementById('r-city').textContent = city;
+  document.getElementById('r-ip').textContent = ip;
+  document.getElementById('r-school').textContent = school;
+  document.getElementById('r-class').textContent = className;
+  document.getElementById('r-device').textContent = device;
+  document.getElementById('r-os').textContent = os;
+  document.getElementById('r-id').textContent = id;
+  document.getElementById('result-screen').style.display = 'flex';
+}
+
+// ====== CHẠY LẠI ======
+function restart() {
+  location.reload();
+}
+
+// ====== CLICK FULLSCREEN ======
+document.body.addEventListener('click', () => {
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+});
 </script>
 </body>
 </html>
